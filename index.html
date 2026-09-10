@@ -78,10 +78,6 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
 }
 .tbtn:hover{background:var(--card-h);border-color:var(--line-h)}
 .tbtn.on{background:var(--grad);border-color:transparent;color:#0b0e1a;font-weight:700}
-.sizer{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:11px;padding:6px 12px}
-.sizer input[type=range]{-webkit-appearance:none;appearance:none;width:90px;height:4px;border-radius:99px;background:linear-gradient(to left,var(--ac),var(--ac2));outline:none;cursor:pointer}
-.sizer input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:grab}
-.sizer span{font-size:.72rem;color:var(--tx3)}
 /* ── hint ── */
 .hint{display:flex;align-items:center;gap:8px;color:var(--tx3);font-size:.78rem;margin:16px 2px 12px}
 .hint .count{color:var(--ac);font-weight:800;font-size:.9rem}
@@ -97,6 +93,8 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
 .font-box:hover{border-color:var(--line-h);background:var(--card-h);transform:translateY(-1px)}
 .font-box.copied{border-color:rgba(63,185,80,.55)}
 .font-box.copied::before{opacity:.07}
+.font-box .copied-badge{position:absolute;top:8px;left:10px;color:var(--good);font-size:.72rem;font-weight:700;opacity:0;transition:.15s}
+.font-box.copied .copied-badge{opacity:1}
 .font-box .txt{flex:1;font-size:1.15rem;word-break:break-word;line-height:2.1;position:relative;direction:ltr;text-align:left}
 .font-box.rtl .txt{direction:rtl;text-align:right}
 .font-box .meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative}
@@ -163,10 +161,6 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
       </div>
       <button class="tbtn" id="favonly" title="فقط نشان‌شده‌ها">★ نشان‌شده‌ها</button>
       <button class="tbtn" id="copyall" title="کپی همه استایل‌ها">📋 کپی همه</button>
-      <div class="sizer" title="اندازه پیش‌نمایش">
-        <span>Aa</span>
-        <input type="range" id="size" min="14" max="30" value="18">
-      </div>
     </div>
   </div>
 
@@ -187,7 +181,7 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
 var DATA=JSON.parse(document.getElementById("styles-data").textContent);
 var EN=DATA.en,EN_NAMES=DATA.en_names,FA=DATA.fa,PAIRS=DATA.pairs;
 var mode="fa",input=document.getElementById("input"),list=document.getElementById("list"),
-    q=document.getElementById("search"),favOnly=false,sizeEl=document.getElementById("size");
+    q=document.getElementById("search"),favOnly=false;
 var favs={};try{favs=JSON.parse(localStorage.getItem("fg_favs")||"{}")}catch(e){}
 function saveFavs(){try{localStorage.setItem("fg_favs",JSON.stringify(favs))}catch(e){}}
 function toast(m){var t=document.getElementById("toast");document.getElementById("toast-tx").textContent=m;t.classList.remove("show");void t.offsetWidth;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show")},1400)}
@@ -234,8 +228,7 @@ function render(){
  var text=input.value.trim()||"پناهان نت";
  var items=mode==="fa"?buildFA(text):buildEN(text);
  var query=q.value.trim().toLowerCase();
- var sz=sizeEl.value+"px";
- var html="",vis=0,all=[];
+  var html="",vis=0,all=[];
  for(var i=0;i<items.length;i++){
   var it=items[i];
   if(!it.t||!it.t.trim())continue;
@@ -245,8 +238,8 @@ function render(){
   vis++;
   var star=favs[mode+i]?"on":"";
   html+='<div class="font-box'+(it.rtl?" rtl":"")+'" data-idx="'+i+'" >'
-      +'<div class="txt" style="font-size:'+sz+'">'+it.t.replace(/</g,"&lt;")+'</div>'
-      +'<div class="meta"><button class="star '+star+'" data-k="'+(mode+i)+'" title="نشان‌کردن">★</button><span class="nm">'+it.n+"</span></div></div>";
+      +'<div class="txt">'+it.t.replace(/</g,"&lt;")+'</div>'
+      +'<span class="copied-badge">✓ کپی شد</span><div class="meta"><button class="star '+star+'" data-k="'+(mode+i)+'" title="نشان‌کردن">★</button><span class="nm">'+it.n+"</span></div></div>";
  }
  list.innerHTML=html||'<div class="empty"><span class="e">'+(favOnly?"⭐":"🔍")+'</span>'+(favOnly?"هنوز چیزی نشان نکردی — روی ستاره بزن":"فونتی با این اسم پیدا نشد")+'</div>';
  document.getElementById("cnt").textContent=vis;
@@ -254,7 +247,9 @@ function render(){
   el.addEventListener("click",function(ev){
    if(ev.target.classList.contains("star"))return;
    copyText(items[+el.dataset.idx].t);
-   el.classList.add("copied");setTimeout(function(){el.classList.remove("copied")},700)
+   el.classList.add("copied");
+   var b=el.querySelector(".copied-badge");if(b){b.style.opacity="1"}
+   setTimeout(function(){el.classList.remove("copied");if(b)b.style.opacity=""},900)
   })
  });
  Array.prototype.forEach.call(list.querySelectorAll(".star"),function(el){
@@ -283,7 +278,6 @@ document.getElementById("tab-fa").addEventListener("click",function(){mode="fa";
 document.getElementById("tab-en").addEventListener("click",function(){mode="en";this.classList.add("on");document.getElementById("tab-fa").classList.remove("on");render()});
 input.addEventListener("input",render);
 q.addEventListener("input",render);
-sizeEl.addEventListener("input",render);
 render();
 </script>
 </body>
