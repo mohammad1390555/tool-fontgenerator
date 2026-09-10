@@ -135,6 +135,7 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
 .hint .dot{flex:1;height:1px;background:var(--line)}
 /* ── font cards ── */
 .font-box{
+  -webkit-user-select:none;user-select:none;
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   padding:14px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px;
   cursor:pointer;transition:transform .14s, border-color .14s, background .14s;
@@ -160,8 +161,9 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
 .font-box.webf{background:rgba(110,168,255,.05);border-color:rgba(110,168,255,.22)}
 .font-box.webf .nm::before{content:"💎 ";color:var(--ac)}
 @media(max-width:560px){
-  .font-box .meta{flex-direction:row;align-items:center}
-  .font-box .nm{display:none}
+  .font-box{flex-wrap:wrap}
+  .font-box .meta{flex-direction:row;align-items:center;gap:10px;width:100%;justify-content:flex-end}
+  .font-box .nm{font-size:.62rem}
   .font-box .txt{font-size:1.02rem}
   .hero{padding-top:26px}
   .panel{padding:12px}
@@ -253,7 +255,7 @@ var T={
   copied:"کپی شد",fav_add:"به نشان‌شده‌ها اضافه شد",
   copied_all:"همه استایل‌ها کپی شد",badge:"✓ کپی شد",
   built:"ساخته‌شده توسط",source:"سورس کد",
-  desc:"بدون تبلیغ، بدون ثبت‌نام، آفلاین — استایل‌های یونیکد همه‌جا کار می‌کنن."
+  desc:"بدون تبلیغ، بدون ثبت‌نام، آفلاین — استایل‌های یونیکد همه‌جا کار می‌کنن.",try_other:"جستجو در فونت‌های انگلیسی ←",default_text:"پناهان نت"
  },
  en:{
   title:"Font Generator — 110+ Fancy Persian & English Text Styles",
@@ -270,7 +272,7 @@ var T={
   copied:"Copied",fav_add:"Added to favorites",
   copied_all:"All styles copied",badge:"✓ Copied",
   built:"Built by",source:"Source code",
-  desc:"No ads, no signup, works offline — Unicode styles work everywhere."
+  desc:"No ads, no signup, works offline — Unicode styles work everywhere.",try_other:"→ Search English fonts",default_text:"Panahanet"
  }
 };
 var lang="fa";try{lang=localStorage.getItem("fg_lang")||"fa"}catch(e){}
@@ -281,6 +283,8 @@ function applyLang(){
  Array.prototype.forEach.call(document.querySelectorAll("[data-i]"),function(el){el.innerHTML=t(el.getAttribute("data-i"))});
  Array.prototype.forEach.call(document.querySelectorAll("[data-ip]"),function(el){el.placeholder=t(el.getAttribute("data-ip"))});
  document.getElementById("lang").textContent=(lang==="fa"?"EN":"فارسی");
+ var ip=document.getElementById("input");
+ if(ip.value==="پناهان نت"||ip.value==="Panahanet")ip.value=t("default_text");
 }
 
 var mode="fa",input=document.getElementById("input"),list=document.getElementById("list"),
@@ -355,7 +359,7 @@ function render(){
       +'<div class="txt">'+it.t.replace(/</g,"&lt;")+'</div>'
       +'<span class="copied-badge">'+t("badge")+'</span><div class="meta"><button class="star '+star+'" data-k="'+(mode+i)+'" title="★">★</button><span class="nm">'+it.n+"</span></div></div>";
  }
- list.innerHTML=html||'<div class="empty"><span class="e">'+(favOnly?"⭐":"🔍")+'</span>'+(favOnly?t("empty_fav"):t("empty_q"))+'</div>';
+ list.innerHTML=html||'<div class="empty"><span class="e">'+(favOnly?"⭐":"🔍")+'</span>'+(favOnly?t("empty_fav"):(query?t("empty_q")+'<br><button class="tbtn" style="margin-top:10px" onclick="switchTab()">'+t("try_other")+'</button>':t("empty_fav")))+'</div>';
  document.getElementById("cnt").textContent=vis;
  Array.prototype.forEach.call(list.querySelectorAll(".font-box"),function(el){
   el.addEventListener("click",function(ev){
@@ -388,6 +392,10 @@ document.getElementById("copyall").addEventListener("click",function(){
 document.getElementById("favonly").addEventListener("click",function(){
  favOnly=!favOnly;this.classList.toggle("on",favOnly);render()
 });
+function switchTab(){mode=(mode==="fa"?"en":"fa");
+ document.getElementById("tab-fa").classList.toggle("on",mode==="fa");
+ document.getElementById("tab-en").classList.toggle("on",mode==="en");
+ q.value="";render()}
 document.getElementById("tab-fa").addEventListener("click",function(){mode="fa";this.classList.add("on");document.getElementById("tab-en").classList.remove("on");render()});
 document.getElementById("tab-en").addEventListener("click",function(){mode="en";this.classList.add("on");document.getElementById("tab-fa").classList.remove("on");render()});
 document.getElementById("lang").addEventListener("click",function(){
