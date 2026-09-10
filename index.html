@@ -91,15 +91,14 @@ textarea:focus{border-color:var(--line-h);box-shadow:0 0 0 3px rgba(110,168,255,
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   padding:14px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px;
   cursor:pointer;transition:transform .14s, border-color .14s, background .14s;
-  animation:pop .28s ease both;position:relative;overflow:hidden;
+  position:relative;overflow:hidden;
 }
-@keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 .font-box::before{content:"";position:absolute;inset:0;background:var(--grad);opacity:0;transition:.2s;pointer-events:none}
 .font-box:hover{border-color:var(--line-h);background:var(--card-h);transform:translateY(-1px)}
 .font-box.copied{border-color:rgba(63,185,80,.55)}
 .font-box.copied::before{opacity:.07}
-.font-box .txt{flex:1;font-size:1.15rem;word-break:break-word;line-height:2;position:relative;direction:ltr;text-align:left}
-.rtl .font-box .txt{direction:rtl;text-align:right}
+.font-box .txt{flex:1;font-size:1.15rem;word-break:break-word;line-height:2.1;position:relative;direction:ltr;text-align:left}
+.font-box.rtl .txt{direction:rtl;text-align:right}
 .font-box .meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative}
 .font-box .nm{color:var(--tx3);font-size:.68rem;white-space:nowrap;direction:rtl}
 .font-box .star{
@@ -236,7 +235,7 @@ function render(){
  var items=mode==="fa"?buildFA(text):buildEN(text);
  var query=q.value.trim().toLowerCase();
  var sz=sizeEl.value+"px";
- var html="",vis=0,all=[],d=0;
+ var html="",vis=0,all=[];
  for(var i=0;i<items.length;i++){
   var it=items[i];
   if(!it.t||!it.t.trim())continue;
@@ -245,7 +244,7 @@ function render(){
   if(query&&it.n.toLowerCase().indexOf(query)<0)continue;
   vis++;
   var star=favs[mode+i]?"on":"";
-  html+='<div class="font-box'+(it.rtl?" rtl":"")+'" data-idx="'+i+'" style="animation-delay:'+(d++*18)+'ms">'
+  html+='<div class="font-box'+(it.rtl?" rtl":"")+'" data-idx="'+i+'" >'
       +'<div class="txt" style="font-size:'+sz+'">'+it.t.replace(/</g,"&lt;")+'</div>'
       +'<div class="meta"><button class="star '+star+'" data-k="'+(mode+i)+'" title="نشان‌کردن">★</button><span class="nm">'+it.n+"</span></div></div>";
  }
